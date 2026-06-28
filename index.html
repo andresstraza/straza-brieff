@@ -75,6 +75,8 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
 .chk.on .ckb{border-color:var(--pu);background:var(--pu)}
 .chk span{font-size:12px;color:var(--ink2)}
 .chk.on span{color:var(--pu)}
+.tk-file-ok{color:#1D7A5F!important;font-weight:500}
+.tk-file-err{color:#C94B2D!important}
 .pg4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .pr{border:1px solid var(--bg3);border-radius:6px;padding:8px 6px;text-align:center;cursor:pointer;background:#fff}
 .pr.on{border-color:var(--pub);background:var(--pul)}
@@ -165,6 +167,9 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
   <div class="top-nav">
     <button class="tnav on" id="btn-home"><i class="ti ti-layout-list"></i> Proyectos</button>
     <button class="tnav" id="btn-nuevo"><i class="ti ti-plus"></i> Nuevo brief</button>
+    <button class="tnav" id="btn-sync"><i class="ti ti-refresh"></i> Sincronizar</button>
+    <button class="tnav" id="btn-settings"><i class="ti ti-settings"></i></button>
+    <span id="sync-indicator" style="font-size:11px;color:#5DCAA5;padding-left:6px"></span>
   </div>
 </div>
 <div class="main">
@@ -250,8 +255,17 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
           <div class="fg"><div class="fl">Cobertura</div>
             <div class="pills" id="pge"><div class="pill geo">Nacional</div><div class="pill geo">Regional</div><div class="pill geo">Ciudad especifica</div><div class="pill geo">Punto piloto</div></div>
           </div>
-          <div class="fg"><div class="fl">Brand Toolkit</div>
-            <div class="pills" id="ptk"><div class="pill tk">Si, tiene toolkit</div><div class="pill tk">No, libertad creativa</div></div>
+          <div class="fg"><div class="fl">Brand Toolkit del cliente</div>
+            <div class="pills" id="ptk">
+              <div class="pill tk" id="pill-tk-si">Si, tiene toolkit</div>
+              <div class="pill tk" id="pill-tk-no">No, libertad creativa</div>
+            </div>
+            <div id="tk-upload-box" style="display:none;margin-top:8px;border:1.5px dashed #AFA9EC;border-radius:6px;background:#EEEDFE;padding:10px 12px">
+              <div style="font-size:11px;color:#534AB7;font-weight:500;margin-bottom:6px">Sube el Brand Toolkit del cliente (PDF o imagen)</div>
+              <input type="file" id="tk-file-input" accept=".pdf,.png,.jpg,.jpeg" style="font-size:12px;font-family:inherit;color:#4A3F52;width:100%">
+              <div id="tk-file-status" style="font-size:11px;color:#8A7E92;margin-top:5px"></div>
+              <div style="font-size:10px;color:#8A7E92;margin-top:3px">Maximo 5MB. El archivo se incluira en el prompt para que Claude lo use como referencia.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -354,6 +368,62 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
   </div></div>
 </div>
 </div>
+
+
+
+<!-- MODAL SETTINGS -->
+<div id="modal-settings" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:12px;width:100%;max-width:480px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:#1A1118;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div style="font-size:14px;font-weight:500;color:#fff">Configuracion</div>
+      <button id="settings-x" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;width:28px;height:28px;border-radius:50%;cursor:pointer">x</button>
+    </div>
+    <div style="padding:18px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div style="font-size:12px;font-weight:500;color:#1A1118;margin-bottom:5px">URL del Apps Script (Google Sheets)</div>
+        <input type="text" id="settings-url" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:8px 10px;border:1px solid #E0D9D0;border-radius:6px;font-size:12px;font-family:inherit;color:#1A1118">
+        <div style="font-size:11px;color:#8A7E92;margin-top:4px">Esta URL conecta la herramienta con Google Sheets para guardar los briefs en la nube. Cada comercial la configura una sola vez.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:500;color:#1A1118;margin-bottom:5px">Tu nombre</div>
+        <input type="text" id="settings-nombre" placeholder="Ej: Carlos Medina" style="width:100%;padding:8px 10px;border:1px solid #E0D9D0;border-radius:6px;font-size:12px;font-family:inherit;color:#1A1118">
+        <div style="font-size:11px;color:#8A7E92;margin-top:4px">Aparece como autor en cada brief que crees.</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button id="settings-save" style="flex:1;padding:9px;background:#534AB7;color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Guardar configuracion</button>
+        <button id="settings-test" style="padding:9px 14px;background:#F8F5F0;color:#4A3F52;border:1px solid #E0D9D0;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit">Probar conexion</button>
+      </div>
+      <div id="settings-msg" style="font-size:12px;text-align:center;min-height:18px"></div>
+      <div style="border-top:1px solid #E0D9D0;padding-top:12px">
+        <div style="font-size:12px;font-weight:500;color:#1A1118;margin-bottom:8px">Backup manual</div>
+        <button id="settings-backup" style="width:100%;padding:8px;background:#F8F5F0;color:#4A3F52;border:1px solid #E0D9D0;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit">Descargar backup JSON de todos los briefs</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL PROMPT -->
+<div id="modal-prompt" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div style="background:#fff;border-radius:12px;width:100%;max-width:660px;max-height:88vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="background:#534AB7;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0">
+      <div>
+        <div style="font-size:14px;font-weight:500;color:#fff">Prompt generado - listo para copiar</div>
+        <div style="font-size:11px;color:#AFA9EC;margin-top:2px">Copia este texto y pegalo en Claude.ai en otra pestana</div>
+      </div>
+      <button id="modal-x" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">x</button>
+    </div>
+    <div style="background:#FAF3DC;border-bottom:1px solid #E0D9D0;padding:12px 18px;font-size:12px;color:#633806;flex-shrink:0">
+      <strong>Como usarlo:</strong> 1. Clic en "Copiar todo" abajo &nbsp;·&nbsp; 2. Abre <strong>claude.ai</strong> en otra pestana &nbsp;·&nbsp; 3. Pega y envia &nbsp;·&nbsp; 4. Cuando Claude responda, copia toda la respuesta &nbsp;·&nbsp; 5. Vuelve aqui y pegala en el campo amarillo
+    </div>
+    <textarea id="modal-ta" readonly style="flex:1;padding:14px 18px;border:none;font-size:11px;font-family:monospace;color:#1A1118;background:#F8F5F0;resize:none;outline:none;min-height:240px"></textarea>
+    <div style="padding:12px 18px;display:flex;gap:8px;border-top:1px solid #E0D9D0;flex-shrink:0">
+      <button id="modal-copy" style="flex:1;padding:10px;background:#534AB7;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Copiar todo el prompt</button>
+      <button id="modal-close" style="padding:10px 16px;background:#F8F5F0;color:#4A3F52;border:1px solid #E0D9D0;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cerrar</button>
+    </div>
+  </div>
+</div>
+
 <script>
 window.addEventListener('DOMContentLoaded', function() {
 
@@ -363,6 +433,134 @@ var presSel = '';
 var detIdx = -1;
 var agOuts = {};
 var activeCode = '';
+var tkFileData = null;
+var tkFileName = '';
+var SCRIPT_URL = ''; // Se configura en Settings
+
+// ── GOOGLE SHEETS SYNC ─────────────────────────────────────
+function getScriptUrl() {
+  return localStorage.getItem('straza_briefs_url') || '';
+}
+
+function syncPost(payload, callback) {
+  var url = getScriptUrl();
+  if (!url) { if (callback) callback({ ok: false, error: 'Sin URL configurada' }); return; }
+  fetch(url, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) { if (callback) callback(data); })
+  .catch(function(e) {
+    // CORS fallback — usar JSONP
+    syncJsonp({ accion: payload.accion, codigo: payload.codigo || '' }, callback);
+  });
+}
+
+function syncJsonp(params, callback) {
+  var url = getScriptUrl();
+  if (!url) return;
+  var cbName = 'scb_' + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    var s = document.getElementById('jsonp-' + cbName);
+    if (s) s.remove();
+    if (callback) callback(data);
+  };
+  var qs = Object.keys(params).map(function(k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+  }).join('&');
+  var s = document.createElement('script');
+  s.id = 'jsonp-' + cbName;
+  s.src = url + '?' + qs + '&callback=' + cbName;
+  document.head.appendChild(s);
+}
+
+function cargarDesdeSheet(onDone) {
+  var url = getScriptUrl();
+  if (!url) { if (onDone) onDone(false); return; }
+  var cbName = 'cb_' + Date.now();
+  window[cbName] = function(data) {
+    delete window[cbName];
+    var s = document.getElementById('jsonp-' + cbName);
+    if (s) s.remove();
+    if (data && data.ok && data.briefs && data.briefs.length > 0) {
+      var local = lp();
+      var localCodes = {};
+      local.forEach(function(b) { localCodes[b.code] = true; });
+      var nuevos = 0;
+      data.briefs.forEach(function(b) {
+        if (!localCodes[b.codigo]) {
+          local.push(sheetToLocal(b));
+          nuevos++;
+        }
+      });
+      if (nuevos > 0) { sp(local); renderSb(); }
+    }
+    if (onDone) onDone(true);
+  };
+  var s = document.createElement('script');
+  s.id = 'jsonp-' + cbName;
+  s.src = url + '?accion=listar&callback=' + cbName;
+  document.head.appendChild(s);
+}
+
+function sheetToLocal(b) {
+  return {
+    code: b.codigo, fecha: b.fecha_reg,
+    q: b.quien, c: b.cliente, m: b.marca, k: b.categoria,
+    ti: b.tipo, t: b.temporalidad, f: b.fecha_entrega,
+    op: b.oportunidad, md: b.desc_marca, pr: b.producto,
+    sh: b.shopper, co: b.consumidor, tr: b.territorio, mi: b.mision,
+    oc: b.ocasion, cm: b.competencia,
+    ca: b.canal, cd: b.cadenas, ci: b.ciudades,
+    ge: b.cobertura, tk: b.toolkit_cliente,
+    pu: b.brand_purpose, id2: b.creative_idea, ins: b.insight, cn: b.concepto,
+    rw: b.reason_why, qu: b.que_haremos, c2: b.como, rf: b.referente,
+    pz: b.piezas ? b.piezas.split(', ') : [],
+    rs: b.restricciones, pre: b.presupuesto, ob: b.observaciones,
+    estado: b.estado || 'Nuevo', tko: b.toolkit_output || null
+  };
+}
+
+function localToSheet(b) {
+  return {
+    codigo: b.code, fecha_reg: b.fecha,
+    quien: b.q, cliente: b.c, marca: b.m, categoria: b.k,
+    tipo: b.ti, temporalidad: b.t, fecha_entrega: b.f,
+    oportunidad: b.op, desc_marca: b.md, producto: b.pr,
+    shopper: b.sh, consumidor: b.co, territorio: b.tr, mision: b.mi,
+    ocasion: b.oc, competencia: b.cm,
+    canal: b.ca, cadenas: b.cd, ciudades: b.ci,
+    cobertura: b.ge, toolkit_cliente: b.tk,
+    brand_purpose: b.pu, creative_idea: b.id2, insight: b.ins, concepto: b.cn,
+    reason_why: b.rw, que_haremos: b.qu, como: b.c2, referente: b.rf,
+    piezas: (b.pz || []).join(', '),
+    restricciones: b.rs, presupuesto: b.pre, observaciones: b.ob,
+    estado: b.estado || 'Nuevo', toolkit_output: b.tko || ''
+  };
+}
+
+function guardarEnSheet(brief, onDone) {
+  var url = getScriptUrl();
+  if (!url) { if (onDone) onDone(false); return; }
+  syncPost({ accion: 'guardar', brief: localToSheet(brief) }, function(r) {
+    if (onDone) onDone(r && r.ok);
+  });
+}
+
+function guardarToolkitEnSheet(codigo, toolkit, quien) {
+  var url = getScriptUrl();
+  if (!url) return;
+  syncPost({ accion: 'guardar_toolkit', codigo: codigo, toolkit: toolkit, quien: quien || '' }, null);
+}
+
+function actualizarEstadoEnSheet(codigo, estado, quien) {
+  var url = getScriptUrl();
+  if (!url) return;
+  syncPost({ accion: 'actualizar_estado', codigo: codigo, estado: estado, quien: quien || '' }, null);
+}
 
 var AGENTS = [
   {id:'a0',n:'A0',nm:'Orquestador',rl:'Analiza brief y distribuye parametros',ic:'i0'},
@@ -448,6 +646,13 @@ function initForm() {
   document.querySelectorAll('select').forEach(function(e) { e.selectedIndex = 0; });
   document.getElementById('ctags').innerHTML = '';
   document.getElementById('tot-cnt').textContent = '0';
+  tkFileData = null; tkFileName = '';
+  var tkBox = document.getElementById('tk-upload-box');
+  if (tkBox) tkBox.style.display = 'none';
+  var tkStatus = document.getElementById('tk-file-status');
+  if (tkStatus) tkStatus.textContent = '';
+  var tkInput2 = document.getElementById('tk-file-input');
+  if (tkInput2) tkInput2.value = '';
   updProg();
   showView('form');
   setNav('btn-nuevo');
@@ -494,6 +699,13 @@ function saveForm() {
   var p = lp(); p.unshift(d); sp(p);
   detIdx = 0;
   renderSb(); showDet(0); showView('det'); setNav('');
+  // Guardar en Google Sheets (backup automatico)
+  guardarEnSheet(d, function(ok) {
+    var ind = document.getElementById('sync-indicator');
+    if (ind) ind.textContent = ok ? 'Guardado en la nube' : 'Guardado local (sin conexion)';
+    if (ind) ind.style.color = ok ? '#1D7A5F' : '#8A7E92';
+    setTimeout(function() { if (ind) ind.textContent = ''; }, 4000);
+  });
   runPipeline(d);
 }
 
@@ -521,6 +733,14 @@ function joinBrief(b) {
     'Presupuesto: ' + b.pre,
     'Observaciones: ' + b.ob
   ];
+  // Agregar referencia al toolkit si fue subido
+  if (tkFileData && tkFileName) {
+    parts.push('');
+    parts.push('BRAND TOOLKIT DEL CLIENTE ADJUNTO:');
+    parts.push('Nombre del archivo: ' + tkFileName);
+    parts.push('El archivo esta codificado en base64 a continuacion. Usalo como referencia visual y de marca para todos los agentes:');
+    parts.push(tkFileData);
+  }
   return parts.join('\n');
 }
 
@@ -569,7 +789,10 @@ function runPipeline(b) {
   var p = lp();
   if (detIdx >= 0 && p[detIdx]) { p[detIdx].estado = 'En proceso'; sp(p); }
   renderSb();
-  if (typeof sendPrompt === 'function') sendPrompt(prompt);
+  // Mostrar el prompt para copiar manualmente
+  var modal = document.getElementById('modal-prompt');
+  var ta = document.getElementById('modal-ta');
+  if (modal && ta) { ta.value = prompt; modal.style.display = 'flex'; }
 }
 
 function renderAgents() {
@@ -695,6 +918,7 @@ function saveTk(text) {
   var p = lp();
   if (detIdx >= 0 && p[detIdx]) {
     p[detIdx].tko = text; p[detIdx].estado = 'Listo'; sp(p); renderSb();
+    guardarToolkitEnSheet(p[detIdx].code, text, p[detIdx].q);
   }
 }
 
@@ -801,7 +1025,11 @@ document.getElementById('btn-export').addEventListener('click', function() {
   a.download = 'Toolkit-' + code + '.txt'; a.click();
 });
 document.getElementById('d-status').addEventListener('change', function() {
-  var p = lp(); if (detIdx >= 0 && p[detIdx]) { p[detIdx].estado = this.value; sp(p); renderSb(); }
+  var p = lp();
+  if (detIdx >= 0 && p[detIdx]) {
+    p[detIdx].estado = this.value; sp(p); renderSb();
+    actualizarEstadoEnSheet(p[detIdx].code, p[detIdx].estado, p[detIdx].q);
+  }
 });
 document.querySelectorAll('.pill').forEach(function(el) {
   el.addEventListener('click', function() {
@@ -811,11 +1039,46 @@ document.querySelectorAll('.pill').forEach(function(el) {
     } else if (el.classList.contains('tk')) {
       document.querySelectorAll('.pill.tk').forEach(function(e) { e.classList.remove('on'); });
       el.classList.add('on');
+      // Mostrar/ocultar box de upload
+      var box = document.getElementById('tk-upload-box');
+      if (box) box.style.display = el.id === 'pill-tk-si' ? 'block' : 'none';
+      if (el.id === 'pill-tk-no') { tkFileData = null; tkFileName = ''; }
     } else {
       el.classList.toggle('on');
     }
   });
 });
+
+// Toolkit file upload handler
+var tkInput = document.getElementById('tk-file-input');
+if (tkInput) {
+  tkInput.addEventListener('change', function() {
+    var file = this.files[0];
+    var status = document.getElementById('tk-file-status');
+    if (!file) { tkFileData = null; tkFileName = ''; return; }
+    if (file.size > 5 * 1024 * 1024) {
+      status.textContent = 'El archivo supera 5MB. Usa una version mas liviana.';
+      status.className = 'tk-file-err';
+      tkFileData = null; tkFileName = '';
+      return;
+    }
+    status.textContent = 'Leyendo archivo...';
+    status.className = '';
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      tkFileData = e.target.result; // base64 data URL
+      tkFileName = file.name;
+      status.textContent = 'Listo: ' + file.name + ' (' + Math.round(file.size/1024) + ' KB)';
+      status.className = 'tk-file-ok';
+    };
+    reader.onerror = function() {
+      status.textContent = 'Error al leer el archivo.';
+      status.className = 'tk-file-err';
+      tkFileData = null; tkFileName = '';
+    };
+    reader.readAsDataURL(file);
+  });
+}
 document.querySelectorAll('.chk').forEach(function(el) {
   el.addEventListener('click', function() {
     el.classList.toggle('on');
@@ -832,7 +1095,59 @@ document.querySelectorAll('#ppr .pr').forEach(function(el, i) {
   });
 });
 
+// Cargar briefs desde Sheet al iniciar
+cargarDesdeSheet(function() { renderSb(); });
+
 renderSb();
+
+// Settings listeners
+document.getElementById('btn-settings').addEventListener('click', function() {
+  document.getElementById('settings-url').value = localStorage.getItem('straza_briefs_url') || '';
+  document.getElementById('settings-nombre').value = localStorage.getItem('straza_nombre') || '';
+  document.getElementById('modal-settings').style.display = 'flex';
+});
+document.getElementById('settings-x').addEventListener('click', function() {
+  document.getElementById('modal-settings').style.display = 'none';
+});
+document.getElementById('settings-save').addEventListener('click', function() {
+  var url = document.getElementById('settings-url').value.trim();
+  var nombre = document.getElementById('settings-nombre').value.trim();
+  localStorage.setItem('straza_briefs_url', url);
+  localStorage.setItem('straza_nombre', nombre);
+  var msg = document.getElementById('settings-msg');
+  msg.textContent = 'Configuracion guardada';
+  msg.style.color = '#1D7A5F';
+  setTimeout(function() { msg.textContent = ''; }, 3000);
+});
+document.getElementById('settings-test').addEventListener('click', function() {
+  var msg = document.getElementById('settings-msg');
+  msg.textContent = 'Probando conexion...';
+  msg.style.color = '#8A7E92';
+  cargarDesdeSheet(function(ok) {
+    msg.textContent = ok ? 'Conexion exitosa con Google Sheets' : 'Error. Revisa la URL.';
+    msg.style.color = ok ? '#1D7A5F' : '#C94B2D';
+  });
+});
+document.getElementById('settings-backup').addEventListener('click', function() {
+  var p = lp();
+  var json = JSON.stringify({ fecha: new Date().toLocaleString('es-CO'), total: p.length, briefs: p }, null, 2);
+  var blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Straza_Briefs_Backup_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+});
+document.getElementById('btn-sync').addEventListener('click', function() {
+  var ind = document.getElementById('sync-indicator');
+  if (ind) { ind.textContent = 'Sincronizando...'; ind.style.color = '#8A7E92'; }
+  cargarDesdeSheet(function(ok) {
+    if (ind) {
+      ind.textContent = ok ? 'Sincronizado' : 'Sin conexion';
+      ind.style.color = ok ? '#1D7A5F' : '#8A7E92';
+      setTimeout(function() { if (ind) ind.textContent = ''; }, 3000);
+    }
+  });
+});
 
 });
 </script>
