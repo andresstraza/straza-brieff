@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Straza - Sistema de Briefs POP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.19.0/iconfont/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--pu:#534AB7;--pul:#EEEDFE;--pub:#AFA9EC;--te:#1D7A5F;--tel:#E2F4EE;--go:#C8A84B;--gol:#FAF3DC;--ink:#1A1118;--ink2:#4A3F52;--ink3:#8A7E92;--bg:#F8F5F0;--bg2:#EEE9E2;--bg3:#E0D9D0}
+html,body{height:100%;font-family:system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top{background:#1A1118;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:54px;flex-shrink:0}
+.top-l{display:flex;align-items:center;gap:12px}
+.logo{height:32px;border-radius:4px;object-fit:contain}
+.brand h1{font-size:13px;font-weight:500;color:#fff;margin:0}
+.brand p{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:.8px;text-transform:uppercase;margin:0}
+.top-nav{display:flex;gap:4px}
+.tnav{padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);background:transparent;font-family:inherit;display:flex;align-items:center;gap:5px}
+.tnav:hover,.tnav.on{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+.main{display:flex;flex:1;overflow:hidden}
+.sb{width:290px;background:#fff;border-right:1px solid var(--bg3);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:14px}
+.ss{background:var(--bg);border-radius:6px;padding:8px 10px}
+.ss-n{font-size:22px;font-weight:500}
+.ss-l{font-size:10px;color:var(--ink3)}
+.sb-new{padding:0 14px 12px}
+.btn-new{width:100%;padding:9px;background:var(--pu);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px}
+.sb-list{padding:8px;flex:1}
+.sb-empty{text-align:center;padding:24px;color:var(--ink3);font-size:12px}
+.pi{padding:10px 11px;border-radius:6px;border:1px solid var(--bg3);cursor:pointer;margin-bottom:5px;background:#fff}
+.pi:hover,.pi.sel{border-color:var(--pub);background:var(--pul)}
+.pi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+.pi-code{font-size:10px;font-weight:600;color:var(--pu);font-family:monospace;background:var(--pul);padding:1px 6px;border-radius:4px}
+.badge{font-size:9px;padding:1px 6px;border-radius:8px;font-weight:500}
+.bn{background:var(--pul);color:var(--pu)}.bp{background:#FFF3CD;color:#856404}.bl{background:var(--tel);color:var(--te)}
+.pi-name{font-size:12px;font-weight:500;margin-bottom:1px}
+.pi-meta{font-size:10px;color:var(--ink3)}
+.ct{flex:1;overflow-y:auto;background:var(--bg)}
+.ct-in{max-width:740px;margin:0 auto;padding:20px 16px}
+.view{display:none}
+.view.on{display:block}
+.welcome{text-align:center;padding:44px 20px}
+.wlogo{height:64px;margin:0 auto 18px;display:block;border-radius:8px}
+.welcome h2{font-size:21px;font-weight:500;margin-bottom:8px}
+.welcome p{font-size:13px;color:var(--ink2);max-width:400px;margin:0 auto 22px;line-height:1.6}
+.w3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:440px;margin:0 auto}
+.wc{background:#fff;border-radius:9px;padding:14px 10px;border:1px solid var(--bg3);text-align:center}
+.wc i{font-size:20px;color:var(--pu);display:block;margin-bottom:5px}
+.wc p{font-size:11px;color:var(--ink2);line-height:1.4}
+.fhdr{background:#fff;border-radius:9px;padding:14px 18px;margin-bottom:10px;border:1px solid var(--bg3)}
+.fhdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.fhdr-top h2{font-size:15px;font-weight:500}
+.fcode{font-size:12px;font-weight:600;color:var(--pu);font-family:monospace;background:var(--pul);padding:3px 10px;border-radius:5px}
+.fprog{display:flex;gap:3px}
+.fp{flex:1;height:3px;border-radius:2px;background:var(--bg2)}
+.fp.done{background:var(--pu)}.fp.cur{background:var(--pub)}
+.fcard{background:#fff;border-radius:9px;padding:15px 18px;margin-bottom:9px;border:1px solid var(--bg3)}
+.fsec{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--pu);margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.fsec::after{content:"";flex:1;height:.5px;background:var(--bg2)}
+.fg{margin-bottom:10px}
+.fl{font-size:12px;font-weight:500;color:var(--ink2);margin-bottom:4px;display:flex;align-items:center;gap:5px}
+.req{font-size:9px;color:var(--pu);background:var(--pul);padding:1px 5px;border-radius:4px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+input[type=text],input[type=date],textarea,select{width:100%;padding:8px 10px;border:1px solid var(--bg3);border-radius:6px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--pub)}
+textarea{resize:vertical;min-height:58px;line-height:1.5}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.pill{padding:4px 11px;border-radius:12px;border:1px solid var(--bg3);font-size:12px;cursor:pointer;background:#fff;color:var(--ink2);user-select:none}
+.pill.on{border-color:var(--pub);color:var(--pu);background:var(--pul);font-weight:500}
+.chks{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.chk{display:flex;align-items:center;gap:7px;padding:7px 9px;border:1px solid var(--bg3);border-radius:6px;cursor:pointer;background:#fff;user-select:none}
+.chk.on{border-color:var(--pub);background:var(--pul)}
+.ckb{width:13px;height:13px;flex-shrink:0;border:1.5px solid var(--bg3);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:700}
+.chk.on .ckb{border-color:var(--pu);background:var(--pu)}
+.chk span{font-size:12px;color:var(--ink2)}
+.chk.on span{color:var(--pu)}
+.pg4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pr{border:1px solid var(--bg3);border-radius:6px;padding:8px 6px;text-align:center;cursor:pointer;background:#fff}
+.pr.on{border-color:var(--pub);background:var(--pul)}
+.pr i{font-size:16px;color:var(--ink3);display:block;margin-bottom:3px}
+.pr.on i{color:var(--pu)}
+.pr .pn{font-size:11px;font-weight:500;display:block}
+.pr.on .pn{color:var(--pu)}
+.pr .ps{font-size:9px;color:var(--ink3);display:block}
+.cbox{border:1px solid var(--bg3);border-radius:6px;overflow:hidden;margin-top:9px}
+.cbox-h{padding:7px 10px;background:var(--bg);border-bottom:1px solid var(--bg3);display:flex;align-items:center;gap:5px}
+.cbox-h span{font-size:12px;font-weight:500}
+.ctags{display:flex;flex-wrap:wrap;gap:4px;padding:7px 10px;min-height:30px;border-bottom:1px solid var(--bg2)}
+.ctag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;border:1px solid var(--pub);background:var(--pul);font-size:11px;color:var(--pu)}
+.ctag button{background:none;border:none;cursor:pointer;color:var(--pub);font-size:12px;padding:0}
+.crow{display:flex;gap:6px;padding:7px 10px;align-items:center}
+.crow input{flex:1;padding:6px 9px;font-size:12px}
+.cadd{padding:6px 12px;background:var(--pu);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit}
+.ffooter{background:#fff;border-radius:9px;padding:11px 18px;border:1px solid var(--bg3);display:flex;align-items:center;justify-content:space-between}
+.fbk{padding:7px 15px;border-radius:12px;border:1px solid var(--bg3);font-size:12px;color:var(--ink2);cursor:pointer;background:transparent;font-family:inherit}
+.fnx{padding:8px 18px;border-radius:12px;border:none;font-size:12px;font-weight:500;color:#fff;cursor:pointer;background:var(--pu);font-family:inherit}
+.fstep{font-size:11px;color:var(--ink3)}
+.dhdr{background:#fff;border-radius:9px;padding:15px 18px;margin-bottom:9px;border:1px solid var(--bg3);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.dhdr-l h2{font-size:17px;font-weight:500;margin-bottom:2px}
+.dhdr-l p{font-size:11px;color:var(--ink3)}
+.dhdr-r{display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0}
+.da{display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:9px;border:1px solid var(--bg3);font-size:11px;color:var(--ink2);background:#fff;cursor:pointer;font-family:inherit}
+.da:hover{border-color:var(--pub);color:var(--pu);background:var(--pul)}
+.da.gen{background:var(--pu);color:#fff;border-color:var(--pu)}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+.dcard{background:#fff;border-radius:9px;padding:13px 15px;border:1px solid var(--bg3)}
+.dcard h3{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--bg2)}
+.drow{display:flex;gap:7px;padding:4px 0;border-bottom:1px solid var(--bg2);font-size:11px}
+.drow:last-child{border-bottom:none}
+.dk{color:var(--ink3);min-width:90px;flex-shrink:0}
+.dv{color:var(--ink);font-weight:500}
+.ptags{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.ptag{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--bg);border:1px solid var(--bg3);color:var(--ink2)}
+.ins{background:var(--gol);border:1px solid var(--go);border-radius:9px;padding:12px 14px;margin-bottom:9px}
+.ins h4{font-size:12px;font-weight:500;color:#412402;margin-bottom:5px}
+.ins p{font-size:11px;color:#633806;line-height:1.6;margin-bottom:7px}
+.ins textarea{width:100%;padding:8px 10px;border:1px solid var(--go);border-radius:6px;font-size:12px;font-family:inherit;min-height:68px;background:#fff;color:var(--ink);resize:vertical}
+.ins-acts{display:flex;gap:6px;margin-top:6px;align-items:center}
+.breg{padding:7px 14px;background:var(--go);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;font-weight:500}
+.ins-hint{font-size:10px;color:#854F0B}
+.pip{background:#fff;border-radius:9px;padding:14px 16px;border:1px solid var(--bg3);margin-bottom:9px}
+.pip h3{font-size:13px;font-weight:500;margin-bottom:10px}
+.pbw{height:4px;background:var(--bg2);border-radius:2px;margin-top:4px;overflow:hidden}
+.pb{height:100%;background:var(--pu);border-radius:2px;transition:width .4s;width:0}
+.plbl{font-size:11px;color:var(--ink3);display:flex;justify-content:space-between}
+.aglist{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.ag{border:1px solid var(--bg3);border-radius:6px;overflow:hidden}
+.ag.run{border-color:var(--pub)}.ag.done{border-color:#5DCAA5}
+.agh{padding:9px 11px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.agic{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:monospace;flex-shrink:0}
+.i0{background:var(--pul);color:var(--pu)}.i1{background:var(--tel);color:var(--te)}.i2{background:#FAECE7;color:#C94B2D}.i3{background:var(--gol);color:#8B6914}.i4{background:#E6F1FB;color:#185FA5}.i5{background:#FBEAF0;color:#993556}.i6{background:var(--bg2);color:var(--ink3)}
+.aginf{flex:1}
+.agnm{font-size:12px;font-weight:500}
+.agrl{font-size:10px;color:var(--ink3)}
+.agst{font-size:10px;display:flex;align-items:center;gap:4px;color:var(--ink3)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--bg3);flex-shrink:0}
+.ag.run .dot{background:var(--pu);animation:bl 1s infinite}.ag.done .dot{background:#1D9E75}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:.3}}
+.agout{display:none;padding:0 11px 10px;border-top:1px solid var(--bg2)}
+.agout.open{display:block}
+.agpre{font-size:11px;color:var(--ink2);line-height:1.7;white-space:pre-wrap;word-break:break-word;background:var(--bg);border-radius:5px;padding:8px 10px;margin-top:7px;max-height:160px;overflow-y:auto;font-family:inherit}
+.tkr{background:#fff;border-radius:9px;border:1px solid #5DCAA5;overflow:hidden;margin-bottom:9px}
+.tkh{background:var(--tel);padding:11px 15px;display:flex;align-items:center;justify-content:space-between}
+.tkh h3{font-size:13px;font-weight:500;color:var(--te)}
+.tkacts{display:flex;gap:5px}
+.tka{display:flex;align-items:center;gap:3px;padding:5px 10px;border:1px solid var(--te);border-radius:6px;font-size:11px;color:var(--te);background:#fff;cursor:pointer;font-family:inherit}
+.tktabs{display:flex;border-bottom:1px solid var(--bg3);overflow-x:auto}
+.tt{padding:8px 13px;font-size:11px;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink3);white-space:nowrap;background:transparent;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.tt.on{color:var(--pu);border-bottom-color:var(--pu);font-weight:500}
+.tksec{display:none;padding:14px 16px}
+.tksec.on{display:block}
+.tksh{font-size:10px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid var(--bg2)}
+.tkbody{font-size:12px;color:var(--ink2);line-height:1.8;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto}
+@media(max-width:680px){.main{flex-direction:column}.sb{width:100%;max-height:180px}.g2,.chks{grid-template-columns:1fr}.pg4{grid-template-columns:1fr 1fr}.dgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="top">
+  <div class="top-l">
+    <img class="logo" id="logo-top" alt="Straza" src="logo_straza.jpeg">
+    <div class="brand"><h1>Sistema de Briefs POP</h1><p>F-GK-003 · Multi-agente</p></div>
+  </div>
+  <div class="top-nav">
+    <button class="tnav on" id="btn-home"><i class="ti ti-layout-list"></i> Proyectos</button>
+    <button class="tnav" id="btn-nuevo"><i class="ti ti-plus"></i> Nuevo brief</button>
+  </div>
+</div>
+<div class="main">
+  <div class="sb">
+    <div class="sb-stats">
+      <div class="ss"><div class="ss-n" id="s0">0</div><div class="ss-l">Total</div></div>
+      <div class="ss"><div class="ss-n" id="s1">0</div><div class="ss-l">Nuevos</div></div>
+      <div class="ss"><div class="ss-n" id="s2">0</div><div class="ss-l">En proceso</div></div>
+      <div class="ss"><div class="ss-n" id="s3">0</div><div class="ss-l">Listos</div></div>
+    </div>
+    <div class="sb-new"><button class="btn-new" id="btn-nuevo2"><i class="ti ti-plus"></i> Nuevo brief</button></div>
+    <div class="sb-list" id="sb-list"><div class="sb-empty">Sin proyectos</div></div>
+  </div>
+  <div class="ct"><div class="ct-in">
+
+    <div class="view on" id="v-home">
+      <div class="welcome">
+        <img class="wlogo" id="logo-w" src="logo_straza.jpeg" alt="Straza">
+        <h2>Sistema de Briefs POP</h2>
+        <p>Diligencia el brief de tu cliente y genera el toolkit estrategico completo con 7 agentes especializados.</p>
+        <div class="w3">
+          <div class="wc"><i class="ti ti-file-text"></i><p>Brief en 6 pasos</p></div>
+          <div class="wc"><i class="ti ti-robot"></i><p>7 agentes Claude</p></div>
+          <div class="wc"><i class="ti ti-layout-grid"></i><p>Toolkit completo</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="view" id="v-form">
+      <div class="fhdr">
+        <div class="fhdr-top"><h2>Nuevo brief</h2><span class="fcode" id="fcode">SV-2026-001</span></div>
+        <div class="fprog"><div class="fp cur" id="fp1"></div><div class="fp" id="fp2"></div><div class="fp" id="fp3"></div><div class="fp" id="fp4"></div><div class="fp" id="fp5"></div><div class="fp" id="fp6"></div></div>
+      </div>
+      <div id="fs1">
+        <div class="fcard"><div class="fsec">Proyecto</div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Quien entrega <span class="req">req</span></div><input type="text" id="iq" placeholder="Director de cuentas"></div>
+            <div class="fg"><div class="fl">Cliente <span class="req">req</span></div><input type="text" id="ic" placeholder="Diageo Colombia"></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Marca <span class="req">req</span></div><input type="text" id="im" placeholder="Smirnoff Spicy Tamarindo"></div>
+            <div class="fg"><div class="fl">Categoria</div><input type="text" id="ik" placeholder="Vodka saborizado"></div>
+          </div>
+          <div class="fg"><div class="fl">Tipo</div>
+            <div class="pills" id="pti"><div class="pill">Lanzamiento</div><div class="pill">Temporada</div><div class="pill">Always On</div><div class="pill">Evento</div></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Fecha entrega</div><input type="date" id="if"></div>
+            <div class="fg"><div class="fl">Temporalidad</div>
+              <select id="it"><option value="">Seleccionar...</option><option>Always On</option><option>Navidad</option><option>Amor y Amistad</option><option>Dia del Padre</option><option>Dia de la Madre</option><option>Halloween</option><option>Otro</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="fs2" style="display:none">
+        <div class="fcard"><div class="fsec">Breakdown de marca</div>
+          <div class="fg"><div class="fl">Oportunidad <span class="req">req</span></div><textarea id="iop" rows="2" placeholder="Que oportunidad genera este proyecto?"></textarea></div>
+          <div class="fg"><div class="fl">Descripcion de marca</div><textarea id="imd" rows="2" placeholder="Posicionamiento, promesa..."></textarea></div>
+          <div class="fg"><div class="fl">Producto</div><input type="text" id="ipr" placeholder="Smirnoff Spicy Tamarindo 750ml"></div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Shopper</div><textarea id="ish" rows="2" placeholder="Quien compra..."></textarea></div>
+            <div class="fg"><div class="fl">Consumidor</div><textarea id="ico" rows="2" placeholder="Quien consume..."></textarea></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Territorio</div><input type="text" id="itr" placeholder="Mix de culturas..."></div>
+            <div class="fg"><div class="fl">Mision de compra</div><input type="text" id="imi" placeholder="Sorprender en la reunion..."></div>
+          </div>
+          <div class="fg"><div class="fl">Ocasion</div>
+            <div class="pills" id="poc"><div class="pill">Celebracion</div><div class="pill">Reunion social</div><div class="pill">Regalo</div><div class="pill">Consumo diario</div><div class="pill">Autocuidado</div></div>
+          </div>
+          <div class="fg"><div class="fl">Competencia en PDV</div><input type="text" id="icm" placeholder="Marcas competidoras..."></div>
+        </div>
+      </div>
+      <div id="fs3" style="display:none">
+        <div class="fcard"><div class="fsec">Canal y entorno</div>
+          <div class="fg"><div class="fl">Canal <span class="req">req</span></div>
+            <div class="pills" id="pca"><div class="pill">Off Trade</div><div class="pill">On Trade</div><div class="pill">Out of Trade</div><div class="pill">Canal especializado</div><div class="pill">Festivales</div></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Cadenas</div><input type="text" id="icd" placeholder="Exito, Jumbo, Alkosto..."></div>
+            <div class="fg"><div class="fl">Ciudades</div><input type="text" id="ici" placeholder="Bogota, Medellin..."></div>
+          </div>
+          <div class="fg"><div class="fl">Cobertura</div>
+            <div class="pills" id="pge"><div class="pill geo">Nacional</div><div class="pill geo">Regional</div><div class="pill geo">Ciudad especifica</div><div class="pill geo">Punto piloto</div></div>
+          </div>
+          <div class="fg"><div class="fl">Brand Toolkit</div>
+            <div class="pills" id="ptk"><div class="pill tk">Si, tiene toolkit</div><div class="pill tk">No, libertad creativa</div></div>
+          </div>
+        </div>
+      </div>
+      <div id="fs4" style="display:none">
+        <div class="fcard"><div class="fsec">Estrategia</div>
+          <div class="fg"><div class="fl">Brand Purpose</div><textarea id="ipu" rows="2" placeholder="La razon de ser de la marca..."></textarea></div>
+          <div class="fg"><div class="fl">Creative Idea del cliente</div><textarea id="iid" rows="2" placeholder="Plataforma creativa..."></textarea></div>
+          <div class="fg"><div class="fl">Insight creativo</div><textarea id="iin" rows="2" placeholder="La verdad humana del shopper..."></textarea></div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Concepto (Big Bet)</div><input type="text" id="icn" placeholder="Sin etiquetas. Sin filtros."></div>
+            <div class="fg"><div class="fl">Reason Why</div><input type="text" id="irw" placeholder="Por que conecta..."></div>
+          </div>
+          <div class="g2">
+            <div class="fg"><div class="fl">Que haremos</div><input type="text" id="iqu" placeholder="Toolkit POP Off y On Trade"></div>
+            <div class="fg"><div class="fl">Como</div><input type="text" id="ic2" placeholder="8 piezas disruptivas..."></div>
+          </div>
+          <div class="fg"><div class="fl">Referente visual</div><textarea id="irf" rows="2" placeholder="URLs, referencias..."></textarea></div>
+        </div>
+      </div>
+      <div id="fs5" style="display:none">
+        <div class="fcard"><div class="fsec">Kit POP Off Trade</div>
+          <div class="chks">
+            <div class="chk"><div class="ckb"></div><span>PDG / FS 360</span></div>
+            <div class="chk"><div class="ckb"></div><span>Punta de gondola</span></div>
+            <div class="chk"><div class="ckb"></div><span>Exhibidor 180</span></div>
+            <div class="chk"><div class="ckb"></div><span>Cabecera de gondola</span></div>
+            <div class="chk"><div class="ckb"></div><span>Glorificador lineal</span></div>
+            <div class="chk"><div class="ckb"></div><span>Cenefa de gondola</span></div>
+            <div class="chk"><div class="ckb"></div><span>Vitrina</span></div>
+            <div class="chk"><div class="ckb"></div><span>Arco de entrada</span></div>
+            <div class="chk"><div class="ckb"></div><span>Floor graphic</span></div>
+            <div class="chk"><div class="ckb"></div><span>Saltarin stopper</span></div>
+          </div>
+          <div class="fsec" style="margin-top:13px">Kit POP On Trade</div>
+          <div class="chks">
+            <div class="chk"><div class="ckb"></div><span>Barra para eventos</span></div>
+            <div class="chk"><div class="ckb"></div><span>Glorificador de mesa</span></div>
+            <div class="chk"><div class="ckb"></div><span>Barra modular</span></div>
+            <div class="chk"><div class="ckb"></div><span>Welcome display totem</span></div>
+            <div class="chk"><div class="ckb"></div><span>Aviso luminoso neon</span></div>
+            <div class="chk"><div class="ckb"></div><span>Photo opportunity</span></div>
+            <div class="chk"><div class="ckb"></div><span>Carro trial sampling</span></div>
+            <div class="chk"><div class="ckb"></div><span>Perfect serve kit</span></div>
+          </div>
+          <div class="cbox">
+            <div class="cbox-h"><i class="ti ti-puzzle" style="color:var(--pu)"></i><span>Piezas adicionales</span></div>
+            <div class="ctags" id="ctags"></div>
+            <div class="crow"><input type="text" id="cusin" placeholder="Dispensador, canoa..."><button class="cadd" id="btn-cadd">+ Agregar</button></div>
+          </div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:6px"><span id="tot-cnt">0</span> piezas seleccionadas</div>
+        </div>
+      </div>
+      <div id="fs6" style="display:none">
+        <div class="fcard"><div class="fsec">Presupuesto y entregable</div>
+          <div class="pg4" id="ppr">
+            <div class="pr"><i class="ti ti-coin"></i><span class="pn">Hasta $5M</span><span class="ps">Basico</span></div>
+            <div class="pr"><i class="ti ti-coins"></i><span class="pn">$5M-$20M</span><span class="ps">Estandar</span></div>
+            <div class="pr"><i class="ti ti-diamond"></i><span class="pn">$20M-$50M</span><span class="ps">Premium</span></div>
+            <div class="pr"><i class="ti ti-crown"></i><span class="pn">+$50M</span><span class="ps">Alto impacto</span></div>
+          </div>
+          <div class="fg" style="margin-top:10px"><div class="fl">Restricciones</div><textarea id="irs" rows="2" placeholder="Materiales no permitidos..."></textarea></div>
+          <div class="fg"><div class="fl">Observaciones</div><textarea id="iob" rows="2" placeholder="Contexto especial..."></textarea></div>
+        </div>
+      </div>
+      <div class="ffooter">
+        <button class="fbk" id="btn-back" style="visibility:hidden">Anterior</button>
+        <span class="fstep" id="fstep">Paso 1 de 6</span>
+        <button class="fnx" id="btn-next">Siguiente</button>
+      </div>
+    </div>
+
+    <div class="view" id="v-det">
+      <div class="dhdr">
+        <div class="dhdr-l"><h2 id="d-title">---</h2><p id="d-meta">---</p></div>
+        <div class="dhdr-r">
+          <select class="da" id="d-status"><option value="Nuevo">Nuevo</option><option value="En proceso">En proceso</option><option value="Listo">Listo</option></select>
+          <button class="da gen" id="btn-gen">Generar campana</button>
+        </div>
+      </div>
+      <div class="dgrid" id="d-grid"></div>
+      <div class="ins" id="ins-box" style="display:none">
+        <h4>Pipeline enviado a Claude</h4>
+        <p>El brief fue enviado al chat de Claude. Cuando Claude responda, copia toda la respuesta y pegala aqui.</p>
+        <textarea id="paste-out" placeholder="Pega aqui la respuesta de Claude..."></textarea>
+        <div class="ins-acts"><button class="breg" id="btn-reg">Registrar toolkit</button><span class="ins-hint">Pipeline de 7 agentes enviado</span></div>
+      </div>
+      <div class="pip" id="pip-panel" style="display:none">
+        <h3>Pipeline de agentes</h3>
+        <div class="plbl"><span id="pip-txt">0 de 7 completados</span><span id="pip-pct">0%</span></div>
+        <div class="pbw"><div class="pb" id="pip-bar"></div></div>
+        <div class="aglist" id="ag-list"></div>
+      </div>
+      <div class="tkr" id="tk-result" style="display:none">
+        <div class="tkh"><h3>Toolkit generado</h3><div class="tkacts"><button class="tka" id="btn-copy">Copiar</button><button class="tka" id="btn-export">Exportar .txt</button></div></div>
+        <div class="tktabs" id="tk-tabs"></div>
+        <div id="tk-secs"></div>
+      </div>
+    </div>
+
+  </div></div>
+</div>
+</div>
+<script>
+window.addEventListener('DOMContentLoaded', function() {
+
+var step = 1;
+var cusItems = [];
+var presSel = '';
+var detIdx = -1;
+var agOuts = {};
+var activeCode = '';
+
+var AGENTS = [
+  {id:'a0',n:'A0',nm:'Orquestador',rl:'Analiza brief y distribuye parametros',ic:'i0'},
+  {id:'a1',n:'A1',nm:'Estratega shopper',rl:'Insight, Journey, Oportunidad',ic:'i1'},
+  {id:'a2',n:'A2',nm:'Director creativo',rl:'Concepto, Claim, Territorio visual',ic:'i2'},
+  {id:'a3',n:'A3',nm:'Redactor copy',rl:'Mensajes por pieza, Guia de voz',ic:'i3'},
+  {id:'a4',n:'A4',nm:'Director de arte',rl:'Composicion visual, Sistema 2D',ic:'i4'},
+  {id:'a5',n:'A5',nm:'Disenador 3D',rl:'Forma volumetrica, Hero y Economica',ic:'i5'},
+  {id:'a6',n:'A6',nm:'Industrial',rl:'Specs produccion, Materiales, COP',ic:'i6'}
+];
+
+function lp() {
+  try { return JSON.parse(localStorage.getItem('straza9') || '[]'); }
+  catch(e) { return []; }
+}
+function sp(d) {
+  try { localStorage.setItem('straza9', JSON.stringify(d)); }
+  catch(e) {}
+}
+function gv(id) {
+  var e = document.getElementById(id);
+  return e ? (e.value || '').trim() : '';
+}
+function gp(cid) {
+  var a = [];
+  document.querySelectorAll('#' + cid + ' .pill.on').forEach(function(e) {
+    a.push(e.textContent.trim());
+  });
+  return a.join(', ') || '';
+}
+function gpz() {
+  var a = [];
+  document.querySelectorAll('.chk.on span').forEach(function(e) {
+    a.push(e.textContent.trim());
+  });
+  return a.concat(cusItems);
+}
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('on'); });
+  var el = document.getElementById('v-' + id);
+  if (el) el.classList.add('on');
+}
+function setNav(id) {
+  document.querySelectorAll('.tnav').forEach(function(b) { b.classList.remove('on'); });
+  if (id) { var el = document.getElementById(id); if (el) el.classList.add('on'); }
+}
+
+function genCode() {
+  var p = lp();
+  var y = new Date().getFullYear();
+  var n = 1;
+  p.forEach(function(x) { if (x.code && x.code.indexOf('SV-' + y) === 0) n++; });
+  var ns = n < 10 ? '00' + n : n < 100 ? '0' + n : '' + n;
+  return 'SV-' + y + '-' + ns;
+}
+
+function updProg() {
+  for (var i = 1; i <= 6; i++) {
+    var e = document.getElementById('fp' + i);
+    if (!e) continue;
+    e.className = 'fp';
+    if (i < step) e.classList.add('done');
+    else if (i === step) e.classList.add('cur');
+  }
+  document.getElementById('fstep').textContent = 'Paso ' + step + ' de 6';
+  document.getElementById('btn-back').style.visibility = step > 1 ? 'visible' : 'hidden';
+  document.getElementById('btn-next').textContent = step === 6 ? 'Guardar y generar' : 'Siguiente';
+}
+
+function initForm() {
+  step = 1; cusItems = []; presSel = '';
+  activeCode = genCode();
+  document.getElementById('fcode').textContent = activeCode;
+  for (var i = 1; i <= 6; i++) {
+    var e = document.getElementById('fs' + i);
+    if (e) e.style.display = i === 1 ? 'block' : 'none';
+  }
+  document.querySelectorAll('.pill, .pr').forEach(function(e) { e.classList.remove('on'); });
+  document.querySelectorAll('.chk').forEach(function(e) { e.classList.remove('on'); });
+  document.querySelectorAll('input[type=text], textarea').forEach(function(e) { e.value = ''; });
+  document.querySelectorAll('input[type=date]').forEach(function(e) { e.value = ''; });
+  document.querySelectorAll('select').forEach(function(e) { e.selectedIndex = 0; });
+  document.getElementById('ctags').innerHTML = '';
+  document.getElementById('tot-cnt').textContent = '0';
+  updProg();
+  showView('form');
+  setNav('btn-nuevo');
+}
+
+function nextStep() {
+  if (step === 6) { saveForm(); return; }
+  document.getElementById('fs' + step).style.display = 'none';
+  step++;
+  document.getElementById('fs' + step).style.display = 'block';
+  updProg();
+  window.scrollTo(0, 0);
+}
+
+function prevStep() {
+  if (step <= 1) return;
+  document.getElementById('fs' + step).style.display = 'none';
+  step--;
+  document.getElementById('fs' + step).style.display = 'block';
+  updProg();
+}
+
+function buildData() {
+  return {
+    code: activeCode,
+    fecha: new Date().toLocaleDateString('es-CO'),
+    q: gv('iq'), c: gv('ic'), m: gv('im'), k: gv('ik'),
+    ti: gp('pti'), t: gv('it'), f: gv('if'),
+    op: gv('iop'), md: gv('imd'), pr: gv('ipr'),
+    sh: gv('ish'), co: gv('ico'), tr: gv('itr'), mi: gv('imi'),
+    oc: gp('poc'), cm: gv('icm'),
+    ca: gp('pca'), cd: gv('icd'), ci: gv('ici'),
+    ge: gp('pge'), tk: gp('ptk'),
+    pu: gv('ipu'), id2: gv('iid'), ins: gv('iin'), cn: gv('icn'),
+    rw: gv('irw'), qu: gv('iqu'), c2: gv('ic2'), rf: gv('irf'),
+    pz: gpz(), rs: gv('irs'), pre: presSel || 'No especificado',
+    ob: gv('iob'), estado: 'Nuevo', tko: null
+  };
+}
+
+function saveForm() {
+  var d = buildData();
+  if (!d.c || !d.m) { alert('Completa Cliente y Marca antes de continuar.'); return; }
+  var p = lp(); p.unshift(d); sp(p);
+  detIdx = 0;
+  renderSb(); showDet(0); showView('det'); setNav('');
+  runPipeline(d);
+}
+
+function joinBrief(b) {
+  var parts = [
+    'BRIEF F-GK-003 -- ' + b.code,
+    'Cliente: ' + b.c + ' | Marca: ' + b.m + ' | Categoria: ' + b.k,
+    'Tipo: ' + b.ti + ' | Temporalidad: ' + b.t + ' | Fecha: ' + b.f,
+    'Oportunidad: ' + b.op,
+    'Descripcion marca: ' + b.md,
+    'Producto: ' + b.pr,
+    'Shopper: ' + b.sh + ' | Consumidor: ' + b.co,
+    'Territorio: ' + b.tr + ' | Mision: ' + b.mi,
+    'Ocasion: ' + b.oc + ' | Competencia: ' + b.cm,
+    'Canal: ' + b.ca + ' | Cadenas: ' + b.cd + ' | Ciudades: ' + b.ci,
+    'Cobertura: ' + b.ge + ' | Toolkit: ' + b.tk,
+    'Brand Purpose: ' + b.pu,
+    'Creative Idea: ' + b.id2,
+    'Insight: ' + b.ins,
+    'Concepto: ' + b.cn + ' | Reason Why: ' + b.rw,
+    'Que haremos: ' + b.qu + ' | Como: ' + b.c2,
+    'Referente: ' + b.rf,
+    'Piezas: ' + (b.pz || []).join(', '),
+    'Restricciones: ' + b.rs,
+    'Presupuesto: ' + b.pre,
+    'Observaciones: ' + b.ob
+  ];
+  return parts.join('\n');
+}
+
+function runPipeline(b) {
+  var bstr = joinBrief(b);
+  var lines = [
+    'PRINCIPIO FUNDACIONAL DE STRAZA: No disenamos productos. Disenamos experiencias que impactan los sentidos y transforman el punto de venta en un momento memorable.',
+    'TRES PILARES: 1-Todo nace del insight. 2-Todo debe ser disruptivo. 3-Todo disena una experiencia sensorial.',
+    'FILTRO: nace del insight, es disruptivo, disena una experiencia. ESTANDAR: Toolkit Don Julio Ceniza 2026.',
+    '',
+    '---',
+    '',
+    'Eres el sistema multi-agente de Straza. Ejecuta los 7 agentes en secuencia con sus encabezados exactos.',
+    '',
+    bstr,
+    '',
+    '=== AGENTE 0 -- ORQUESTADOR ===',
+    'Analiza el brief. 5 datos clave. Parametros globales para todos los agentes.',
+    '',
+    '=== AGENTE 1 -- ESTRATEGA SHOPPER ===',
+    'Evita nostalgia y aspiracionalidad. UN insight en primera persona (actitud no ingrediente). Journey 5 momentos Off Trade y 5 On Trade con sentidos activables. Oportunidad estrategica.',
+    '',
+    '=== AGENTE 2 -- DIRECTOR CREATIVO ===',
+    'Concepto max 4 palabras. Claim principal. Plataforma creativa. Territorio visual con hex. Moodboard 5 referencias. Claims secundarios por momento.',
+    '',
+    '=== AGENTE 3 -- REDACTOR COPY ===',
+    'Para cada pieza: headline max 5 palabras, subhline max 10 palabras, body, CTA, tono, observacion al disenador. Guia de voz al final.',
+    '',
+    '=== AGENTE 4 -- DIRECTOR DE ARTE ===',
+    'Para cada pieza: zonas con porcentajes, jerarquia visual, color con hex, tipografia, descripcion imagen, parrafo de experiencia visual. Ficha sistema visual al final.',
+    '',
+    '=== AGENTE 5 -- DISENADOR 3D ===',
+    'Para cada pieza: HERO (concepto formal, geometria, zonas, iluminacion, 360, instrucciones 3ds Max o Cinema 4D o Rhino) y ECONOMICA. Sistema Formal 3D al final.',
+    '',
+    '=== AGENTE 6 -- INDUSTRIAL ===',
+    'Para cada pieza y variante: cotas mm, despiece tabla, impresion, ensamble, instalacion, complejidad, tiempo dias habiles, viabilidad COP. Tabla maestra. Mix optimo. Top 5 alertas.',
+    '',
+    '=== FILTRO FINAL ORQUESTADOR ===',
+    'Coherencia. Insight atraviesa todo. Piezas disruptivas y sensoriales. Specs viables. Corrige inconsistencias.'
+  ];
+  var prompt = lines.join('\n');
+
+  document.getElementById('ins-box').style.display = 'block';
+  document.getElementById('pip-panel').style.display = 'block';
+  renderAgents();
+  var p = lp();
+  if (detIdx >= 0 && p[detIdx]) { p[detIdx].estado = 'En proceso'; sp(p); }
+  renderSb();
+  if (typeof sendPrompt === 'function') sendPrompt(prompt);
+}
+
+function renderAgents() {
+  var list = document.getElementById('ag-list');
+  list.innerHTML = '';
+  AGENTS.forEach(function(a, i) {
+    var div = document.createElement('div');
+    div.className = 'ag'; div.id = 'ag' + i;
+    var h = document.createElement('div'); h.className = 'agh';
+    var ic = document.createElement('div'); ic.className = 'agic ' + a.ic; ic.textContent = a.n;
+    var inf = document.createElement('div'); inf.className = 'aginf';
+    var nm = document.createElement('div'); nm.className = 'agnm'; nm.textContent = a.nm;
+    var rl = document.createElement('div'); rl.className = 'agrl'; rl.textContent = a.rl;
+    inf.appendChild(nm); inf.appendChild(rl);
+    var st = document.createElement('div'); st.className = 'agst'; st.id = 'as' + i;
+    var dot = document.createElement('span'); dot.className = 'dot';
+    var stxt = document.createElement('span'); stxt.textContent = 'En espera';
+    st.appendChild(dot); st.appendChild(stxt);
+    h.appendChild(ic); h.appendChild(inf); h.appendChild(st);
+    h.addEventListener('click', function() {
+      var o = document.getElementById('ao' + i);
+      if (o) o.classList.toggle('open');
+    });
+    div.appendChild(h);
+    var out = document.createElement('div'); out.className = 'agout'; out.id = 'ao' + i;
+    var pre = document.createElement('pre'); pre.className = 'agpre'; pre.id = 'ap' + i; pre.textContent = '--';
+    out.appendChild(pre); div.appendChild(out); list.appendChild(div);
+  });
+}
+
+function setAgSt(i, st, txt) {
+  var row = document.getElementById('ag' + i);
+  var sel = document.getElementById('as' + i);
+  var pre = document.getElementById('ap' + i);
+  if (!row) return;
+  row.className = 'ag';
+  if (st === 'done') row.classList.add('done');
+  else if (st === 'run') row.classList.add('run');
+  if (sel) {
+    var lbl = {w:'En espera', run:'Procesando...', done:'Completado', err:'Error'};
+    sel.querySelector('span:last-child').textContent = lbl[st] || st;
+  }
+  if (pre && txt) pre.textContent = txt.substring(0, 500) + (txt.length > 500 ? '...' : '');
+  if (txt && st === 'done') {
+    var o = document.getElementById('ao' + i);
+    if (o) o.classList.add('open');
+  }
+}
+
+function updPip(done) {
+  var pct = Math.round(done / AGENTS.length * 100);
+  document.getElementById('pip-bar').style.width = pct + '%';
+  document.getElementById('pip-txt').textContent = done + ' de ' + AGENTS.length + ' completados';
+  document.getElementById('pip-pct').textContent = pct + '%';
+}
+
+function parseOutput(text) {
+  var kw = {
+    a0: ['ORQUESTADOR', 'PARAMETROS GLOBALES'],
+    a1: ['ESTRATEGA SHOPPER', 'INSIGHT', 'SHOPPER JOURNEY'],
+    a2: ['DIRECTOR CREATIVO', 'CONCEPTO CREATIVO', 'TERRITORIO VISUAL'],
+    a3: ['REDACTOR COPY', 'MENSAJES', 'GUIA DE VOZ'],
+    a4: ['DIRECTOR DE ARTE', 'COMPOSICION', 'SISTEMA VISUAL'],
+    a5: ['DISENADOR 3D', 'VERSION HERO', 'SISTEMA FORMAL 3D'],
+    a6: ['INDUSTRIAL', 'SPECS', 'TABLA MAESTRA']
+  };
+  var lo = text.toLowerCase();
+  AGENTS.forEach(function(a, i) {
+    var best = '';
+    (kw[a.id] || []).forEach(function(k) {
+      var idx = lo.indexOf(k.toLowerCase());
+      if (idx > -1) {
+        var ch = text.substring(Math.max(0, idx - 50), Math.min(text.length, idx + 3000));
+        if (ch.length > best.length) best = ch;
+      }
+    });
+    if (best.length > 80) { agOuts[a.id] = best; setAgSt(i, 'done', best); }
+  });
+  if (!Object.keys(agOuts).length) { agOuts.a0 = text; setAgSt(0, 'done', text); }
+  updPip(Object.keys(agOuts).length);
+  var full = 'TOOLKIT DE CAMPANA POP - STRAZA\n\n' + text;
+  saveTk(full); showTk(full);
+  document.getElementById('ins-box').style.display = 'none';
+  document.getElementById('paste-out').value = '';
+}
+
+function showTk(text) {
+  document.getElementById('tk-result').style.display = 'block';
+  var secs = [
+    {id:'full', label:'Toolkit completo', c: text},
+    {id:'a0', label:'Orquestador', c: agOuts.a0 || ''},
+    {id:'a1', label:'Estrategia', c: agOuts.a1 || ''},
+    {id:'a2', label:'Creativo', c: agOuts.a2 || ''},
+    {id:'a3', label:'Copy', c: agOuts.a3 || ''},
+    {id:'a4', label:'Arte', c: agOuts.a4 || ''},
+    {id:'a5', label:'3D', c: agOuts.a5 || ''},
+    {id:'a6', label:'Industrial', c: agOuts.a6 || ''}
+  ];
+  var tabs = document.getElementById('tk-tabs');
+  var cont = document.getElementById('tk-secs');
+  tabs.innerHTML = ''; cont.innerHTML = '';
+  secs.forEach(function(s, i) {
+    var btn = document.createElement('button');
+    btn.className = 'tt' + (i === 0 ? ' on' : '');
+    btn.textContent = s.label;
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.tt').forEach(function(t) { t.classList.remove('on'); });
+      btn.classList.add('on');
+      document.querySelectorAll('.tksec').forEach(function(t) { t.classList.remove('on'); });
+      var sec = document.getElementById('tks-' + s.id);
+      if (sec) sec.classList.add('on');
+    });
+    tabs.appendChild(btn);
+    var div = document.createElement('div');
+    div.className = 'tksec' + (i === 0 ? ' on' : ''); div.id = 'tks-' + s.id;
+    var h = document.createElement('div'); h.className = 'tksh'; h.textContent = s.label;
+    var body = document.createElement('div'); body.className = 'tkbody'; body.textContent = s.c || 'Sin datos';
+    div.appendChild(h); div.appendChild(body); cont.appendChild(div);
+  });
+}
+
+function saveTk(text) {
+  var p = lp();
+  if (detIdx >= 0 && p[detIdx]) {
+    p[detIdx].tko = text; p[detIdx].estado = 'Listo'; sp(p); renderSb();
+  }
+}
+
+function showDet(idx) {
+  var p = lp()[idx]; if (!p) return;
+  detIdx = idx;
+  document.getElementById('d-title').textContent = p.m + ' -- ' + p.c;
+  document.getElementById('d-meta').textContent = p.code + ' / ' + p.fecha + (p.ca ? ' / ' + p.ca : '');
+  document.getElementById('d-status').value = p.estado || 'Nuevo';
+  document.getElementById('ins-box').style.display = 'none';
+  document.getElementById('pip-panel').style.display = 'none';
+  document.getElementById('tk-result').style.display = 'none';
+  agOuts = {};
+  var pz = (p.pz && p.pz.length)
+    ? p.pz.map(function(x) { return '<span class="ptag">' + x + '</span>'; }).join('')
+    : '--';
+  document.getElementById('d-grid').innerHTML =
+    '<div class="dcard"><h3>Proyecto</h3>' +
+    dr('Tipo', p.ti) + dr('Canal', p.ca) + dr('Cadenas', p.cd) + dr('Presupuesto', p.pre) +
+    '</div><div class="dcard"><h3>Estrategia</h3>' +
+    dr('Producto', p.pr) + dr('Shopper', p.sh) + dr('Ocasion', p.oc) + dr('Concepto', p.cn) +
+    '</div><div class="dcard" style="grid-column:1/-1"><h3>Kit POP</h3>' +
+    '<div class="ptags">' + pz + '</div></div>';
+  if (p.tko) { document.getElementById('pip-panel').style.display = 'block'; renderAgents(); showTk(p.tko); }
+  renderSb();
+}
+
+function dr(k, v) {
+  return '<div class="drow"><span class="dk">' + k + '</span><span class="dv">' + (v || '--') + '</span></div>';
+}
+
+function addCus() {
+  var inp = document.getElementById('cusin'); var v = inp.value.trim();
+  if (!v) return; cusItems.push(v); renderCusTags(); inp.value = '';
+  document.getElementById('tot-cnt').textContent = document.querySelectorAll('.chk.on').length + cusItems.length;
+}
+function removeCus(i) {
+  cusItems.splice(i, 1); renderCusTags();
+  document.getElementById('tot-cnt').textContent = document.querySelectorAll('.chk.on').length + cusItems.length;
+}
+function renderCusTags() {
+  var c = document.getElementById('ctags'); c.innerHTML = '';
+  cusItems.forEach(function(p, i) {
+    var t = document.createElement('div'); t.className = 'ctag';
+    var txt = document.createTextNode(p);
+    var btn = document.createElement('button'); btn.textContent = 'x';
+    btn.addEventListener('click', function() { removeCus(i); });
+    t.appendChild(txt); t.appendChild(btn); c.appendChild(t);
+  });
+}
+
+function renderSb() {
+  var all = lp();
+  document.getElementById('s0').textContent = all.length;
+  document.getElementById('s1').textContent = all.filter(function(p) { return p.estado === 'Nuevo'; }).length;
+  document.getElementById('s2').textContent = all.filter(function(p) { return p.estado === 'En proceso'; }).length;
+  document.getElementById('s3').textContent = all.filter(function(p) { return p.estado === 'Listo'; }).length;
+  var list = document.getElementById('sb-list');
+  if (!all.length) { list.innerHTML = '<div class="sb-empty">Sin proyectos</div>'; return; }
+  list.innerHTML = '';
+  all.forEach(function(p, i) {
+    var bc = p.estado === 'Listo' ? 'bl' : p.estado === 'En proceso' ? 'bp' : 'bn';
+    var div = document.createElement('div');
+    div.className = 'pi' + (detIdx === i ? ' sel' : '');
+    var top = document.createElement('div'); top.className = 'pi-top';
+    var code = document.createElement('span'); code.className = 'pi-code'; code.textContent = p.code;
+    var badge = document.createElement('span'); badge.className = 'badge ' + bc; badge.textContent = p.estado;
+    top.appendChild(code); top.appendChild(badge);
+    var name = document.createElement('div'); name.className = 'pi-name'; name.textContent = p.m + ' -- ' + p.c;
+    var meta = document.createElement('div'); meta.className = 'pi-meta';
+    meta.textContent = p.fecha + (p.pz && p.pz.length ? ' / ' + p.pz.length + ' piezas' : '');
+    div.appendChild(top); div.appendChild(name); div.appendChild(meta);
+    div.addEventListener('click', (function(idx) {
+      return function() { detIdx = idx; showDet(idx); showView('det'); setNav(''); };
+    })(i));
+    list.appendChild(div);
+  });
+}
+
+document.getElementById('btn-home').addEventListener('click', function() { showView('home'); setNav('btn-home'); renderSb(); });
+document.getElementById('btn-nuevo').addEventListener('click', function() { initForm(); });
+document.getElementById('btn-nuevo2').addEventListener('click', function() { initForm(); });
+document.getElementById('btn-next').addEventListener('click', function() { nextStep(); });
+document.getElementById('btn-back').addEventListener('click', function() { prevStep(); });
+document.getElementById('btn-cadd').addEventListener('click', function() { addCus(); });
+document.getElementById('cusin').addEventListener('keydown', function(e) { if (e.key === 'Enter') addCus(); });
+document.getElementById('btn-gen').addEventListener('click', function() {
+  var p = lp(); if (detIdx >= 0 && p[detIdx]) runPipeline(p[detIdx]);
+});
+document.getElementById('btn-reg').addEventListener('click', function() {
+  var text = document.getElementById('paste-out').value || '';
+  if (!text.trim()) { alert('Pega la respuesta de Claude primero.'); return; }
+  parseOutput(text);
+});
+document.getElementById('btn-copy').addEventListener('click', function() {
+  var el = document.querySelector('.tksec.on .tkbody');
+  if (el && navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(function() { alert('Copiado.'); });
+});
+document.getElementById('btn-export').addEventListener('click', function() {
+  var el = document.getElementById('tks-full'); if (!el) return;
+  var p = lp()[detIdx]; var code = p ? p.code : 'toolkit';
+  var blob = new Blob([el.textContent], {type: 'text/plain;charset=utf-8'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'Toolkit-' + code + '.txt'; a.click();
+});
+document.getElementById('d-status').addEventListener('change', function() {
+  var p = lp(); if (detIdx >= 0 && p[detIdx]) { p[detIdx].estado = this.value; sp(p); renderSb(); }
+});
+document.querySelectorAll('.pill').forEach(function(el) {
+  el.addEventListener('click', function() {
+    if (el.classList.contains('geo')) {
+      document.querySelectorAll('.pill.geo').forEach(function(e) { e.classList.remove('on'); });
+      el.classList.add('on');
+    } else if (el.classList.contains('tk')) {
+      document.querySelectorAll('.pill.tk').forEach(function(e) { e.classList.remove('on'); });
+      el.classList.add('on');
+    } else {
+      el.classList.toggle('on');
+    }
+  });
+});
+document.querySelectorAll('.chk').forEach(function(el) {
+  el.addEventListener('click', function() {
+    el.classList.toggle('on');
+    if (el.classList.contains('on')) el.querySelector('.ckb').textContent = '\u2713';
+    else el.querySelector('.ckb').textContent = '';
+    document.getElementById('tot-cnt').textContent = document.querySelectorAll('.chk.on').length + cusItems.length;
+  });
+});
+document.querySelectorAll('#ppr .pr').forEach(function(el, i) {
+  var vals = ['Hasta $5M COP', '$5M-$20M COP', '$20M-$50M COP', '+$50M COP'];
+  el.addEventListener('click', function() {
+    document.querySelectorAll('#ppr .pr').forEach(function(e) { e.classList.remove('on'); });
+    el.classList.add('on'); presSel = vals[i];
+  });
+});
+
+renderSb();
+
+});
+</script>
+</body>
+</html>
