@@ -1200,6 +1200,51 @@ document.getElementById('btn-sync').addEventListener('click', function() {
   });
 });
 
+// Modal prompt listeners
+var modalPrompt = document.getElementById('modal-prompt');
+var modalX = document.getElementById('modal-x');
+var modalClose = document.getElementById('modal-close');
+var modalCopy = document.getElementById('modal-copy');
+
+if (modalX) {
+  modalX.addEventListener('click', function() {
+    if (modalPrompt) modalPrompt.style.display = 'none';
+  });
+}
+if (modalClose) {
+  modalClose.addEventListener('click', function() {
+    if (modalPrompt) modalPrompt.style.display = 'none';
+  });
+}
+if (modalPrompt) {
+  modalPrompt.addEventListener('click', function(e) {
+    if (e.target === modalPrompt) modalPrompt.style.display = 'none';
+  });
+}
+if (modalCopy) {
+  modalCopy.addEventListener('click', function() {
+    var ta = document.getElementById('modal-ta');
+    if (!ta) return;
+    var text = ta.value;
+    var btn = modalCopy;
+    function showCopied() {
+      btn.textContent = 'Copiado!';
+      btn.style.background = '#1D7A5F';
+      setTimeout(function() {
+        btn.textContent = 'Copiar todo el prompt';
+        btn.style.background = '#534AB7';
+      }, 2500);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(function() {
+        try { ta.select(); document.execCommand('copy'); showCopied(); } catch(e) {}
+      });
+    } else {
+      try { ta.select(); document.execCommand('copy'); showCopied(); } catch(e) {}
+    }
+  });
+}
+
 });
 </script>
 </body>
