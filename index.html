@@ -416,7 +416,10 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
     <div style="background:#FAF3DC;border-bottom:1px solid #E0D9D0;padding:12px 18px;font-size:12px;color:#633806;flex-shrink:0">
       <strong>Como usarlo:</strong> 1. Clic en "Copiar todo" abajo &nbsp;·&nbsp; 2. Abre <strong>claude.ai</strong> en otra pestana &nbsp;·&nbsp; 3. Pega y envia &nbsp;·&nbsp; 4. Cuando Claude responda, copia toda la respuesta &nbsp;·&nbsp; 5. Vuelve aqui y pegala en el campo amarillo
     </div>
-    <textarea id="modal-ta" readonly style="flex:1;padding:14px 18px;border:none;font-size:11px;font-family:monospace;color:#1A1118;background:#F8F5F0;resize:none;outline:none;min-height:240px"></textarea>
+    <div style="flex-shrink:0;padding:8px 18px;background:#E1F5EE;font-size:11px;color:#1D7A5F;font-weight:500">
+  Tip: Presiona <strong>ESC</strong> o clic en la X para cerrar esta ventana despues de copiar
+</div>
+<textarea id="modal-ta" readonly style="flex:1;padding:14px 18px;border:none;font-size:11px;font-family:monospace;color:#1A1118;background:#F8F5F0;resize:none;outline:none;min-height:240px"></textarea>
     <div style="padding:12px 18px;display:flex;gap:8px;border-top:1px solid #E0D9D0;flex-shrink:0">
       <button id="modal-copy" style="flex:1;padding:10px;background:#534AB7;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit">Copiar todo el prompt</button>
       <button id="modal-close" style="padding:10px 16px;background:#F8F5F0;color:#4A3F52;border:1px solid #E0D9D0;border-radius:7px;font-size:13px;cursor:pointer;font-family:inherit">Cerrar</button>
@@ -1202,6 +1205,15 @@ document.getElementById('btn-sync').addEventListener('click', function() {
 
 // Modal prompt listeners
 var modalPrompt = document.getElementById('modal-prompt');
+
+// ESC key closes modal
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' || e.keyCode === 27) {
+    if (modalPrompt) modalPrompt.style.display = 'none';
+    var ms = document.getElementById('modal-settings');
+    if (ms) ms.style.display = 'none';
+  }
+});
 var modalX = document.getElementById('modal-x');
 var modalClose = document.getElementById('modal-close');
 var modalCopy = document.getElementById('modal-copy');
