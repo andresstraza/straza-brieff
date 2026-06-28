@@ -359,7 +359,7 @@ textarea{resize:vertical;min-height:58px;line-height:1.5}
         <div class="aglist" id="ag-list"></div>
       </div>
       <div class="tkr" id="tk-result" style="display:none">
-        <div class="tkh"><h3>Toolkit generado</h3><div class="tkacts"><button class="tka" id="btn-copy">Copiar</button><button class="tka" id="btn-export">Exportar .txt</button></div></div>
+        <div class="tkh"><h3>Toolkit generado</h3><div class="tkacts"><button class="tka" id="btn-copy">Copiar</button><button class="tka" id="btn-export">Exportar .txt</button><button class="tka" id="btn-pdf" style="background:#C94B2D;color:#fff;border-color:#C94B2D">Exportar PDF</button></div></div>
         <div class="tktabs" id="tk-tabs"></div>
         <div id="tk-secs"></div>
       </div>
@@ -1034,6 +1034,9 @@ document.getElementById('btn-copy').addEventListener('click', function() {
   var el = document.querySelector('.tksec.on .tkbody');
   if (el && navigator.clipboard) navigator.clipboard.writeText(el.textContent).then(function() { alert('Copiado.'); });
 });
+document.getElementById('btn-pdf').addEventListener('click', function() {
+  exportarPDF();
+});
 document.getElementById('btn-export').addEventListener('click', function() {
   var el = document.getElementById('tks-full'); if (!el) return;
   var p = lp()[detIdx]; var code = p ? p.code : 'toolkit';
@@ -1202,6 +1205,138 @@ document.getElementById('btn-sync').addEventListener('click', function() {
     }
   });
 });
+
+// PDF Export
+function exportarPDF() {
+  var p = lp()[detIdx];
+  if (!p) return;
+
+  var secs = [
+    { id: 'a0', label: 'AGENTE 0 — ORQUESTADOR' },
+    { id: 'a1', label: 'AGENTE 1 — ESTRATEGA SHOPPER' },
+    { id: 'a2', label: 'AGENTE 2 — DIRECTOR CREATIVO' },
+    { id: 'a3', label: 'AGENTE 3 — REDACTOR COPY' },
+    { id: 'a4', label: 'AGENTE 4 — DIRECTOR DE ARTE' },
+    { id: 'a5', label: 'AGENTE 5 — DISENADOR 3D' },
+    { id: 'a6', label: 'AGENTE 6 — INDUSTRIAL' }
+  ];
+
+  // Build HTML for PDF
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">';
+  html += '<style>';
+  html += 'body{font-family:Arial,sans-serif;margin:0;padding:0;color:#1A1118;font-size:11px;line-height:1.6}';
+  html += '.cover{background:#1A1118;color:#fff;padding:60px 50px;min-height:180px;page-break-after:always}';
+  html += '.cover-brand{font-size:28px;font-weight:700;color:#C8A84B;font-style:italic;margin-bottom:8px}';
+  html += '.cover-title{font-size:22px;font-weight:500;color:#fff;margin-bottom:6px}';
+  html += '.cover-sub{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:30px}';
+  html += '.cover-meta{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:30px}';
+  html += '.cover-meta-item label{font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px}';
+  html += '.cover-meta-item span{font-size:13px;color:#fff;font-weight:500}';
+  html += '.section{padding:30px 50px;page-break-before:always}';
+  html += '.section-header{background:#534AB7;color:#fff;padding:10px 16px;border-radius:4px;margin-bottom:16px}';
+  html += '.section-header h2{font-size:13px;font-weight:600;letter-spacing:.5px;margin:0}';
+  html += '.section-content{font-size:11px;color:#2C2C2A;line-height:1.8;white-space:pre-wrap;word-break:break-word}';
+  html += '.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;page-break-after:always;padding:30px 50px}';
+  html += '.brief-card{background:#F8F5F0;border-radius:6px;padding:12px 14px;border:1px solid #E0D9D0}';
+  html += '.brief-card h3{font-size:9px;font-weight:600;letter-spacing:.7px;text-transform:uppercase;color:#8A7E92;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #E0D9D0}';
+  html += '.brief-row{display:flex;gap:8px;padding:3px 0;border-bottom:1px solid #E0D9D0;font-size:10px}';
+  html += '.brief-row:last-child{border-bottom:none}';
+  html += '.bk{color:#8A7E92;min-width:80px;flex-shrink:0}';
+  html += '.bv{color:#1A1118;font-weight:500}';
+  html += '.piezas{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}';
+  html += '.pieza{font-size:9px;padding:2px 7px;border-radius:5px;background:#EEEDFE;border:1px solid #AFA9EC;color:#534AB7}';
+  html += '.footer{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E0D9D0;padding:6px 50px;display:flex;justify-content:space-between;font-size:9px;color:#8A7E92}';
+  html += '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}.footer{position:fixed}}';
+  html += '</style></head><body>';
+
+  // Cover
+  html += '<div class="cover">';
+  html += '<div class="cover-brand">Straza.</div>';
+  html += '<div style="font-size:10px;color:rgba(255,255,255,.35);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px">THE INSIGHT OF SHOPPER MARKETING</div>';
+  html += '<div class="cover-title">TOOLKIT DE CAMPANA POP</div>';
+  html += '<div class="cover-sub">' + (p.m || '') + ' &mdash; ' + (p.c || '') + '</div>';
+  html += '<div style="width:60px;height:2px;background:#C8A84B;margin:20px 0"></div>';
+  html += '<div class="cover-meta">';
+  html += '<div class="cover-meta-item"><label>Codigo</label><span>' + (p.code || '') + '</span></div>';
+  html += '<div class="cover-meta-item"><label>Fecha</label><span>' + (p.fecha || '') + '</span></div>';
+  html += '<div class="cover-meta-item"><label>Canal</label><span>' + (p.ca || 'No especificado') + '</span></div>';
+  html += '<div class="cover-meta-item"><label>Presupuesto</label><span>' + (p.pre || 'No especificado') + '</span></div>';
+  html += '</div>';
+  html += '<div style="margin-top:30px;font-size:10px;color:rgba(255,255,255,.25)">' + new Date().toLocaleDateString('es-CO') + ' &nbsp;&middot;&nbsp; Generado con Sistema Multi-Agente Straza F-GK-003</div>';
+  html += '</div>';
+
+  // Brief summary
+  html += '<div class="brief-grid">';
+  html += '<div style="grid-column:1/-1;padding-bottom:12px"><div style="font-size:14px;font-weight:600;color:#1A1118;margin-bottom:4px">Resumen del brief</div><div style="font-size:10px;color:#8A7E92">' + (p.code || '') + ' &middot; ' + (p.m || '') + ' &middot; ' + (p.c || '') + '</div></div>';
+  html += '<div class="brief-card"><h3>Proyecto</h3>';
+  html += '<div class="brief-row"><span class="bk">Tipo</span><span class="bv">' + (p.ti || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Canal</span><span class="bv">' + (p.ca || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Cadenas</span><span class="bv">' + (p.cd || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Ciudades</span><span class="bv">' + (p.ci || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Presupuesto</span><span class="bv">' + (p.pre || '-') + '</span></div>';
+  html += '</div>';
+  html += '<div class="brief-card"><h3>Estrategia</h3>';
+  html += '<div class="brief-row"><span class="bk">Producto</span><span class="bv">' + (p.pr || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Shopper</span><span class="bv">' + (p.sh || '-').substring(0,60) + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Ocasion</span><span class="bv">' + (p.oc || '-') + '</span></div>';
+  html += '<div class="brief-row"><span class="bk">Concepto</span><span class="bv">' + (p.cn || '-') + '</span></div>';
+  html += '</div>';
+  if (p.pz && p.pz.length) {
+    html += '<div class="brief-card" style="grid-column:1/-1"><h3>Kit POP</h3><div class="piezas">';
+    p.pz.forEach(function(pz) { html += '<span class="pieza">' + pz + '</span>'; });
+    html += '</div></div>';
+  }
+  html += '</div>';
+
+  // Agent sections
+  var agOuts2 = {};
+  if (p.tko) {
+    var text = p.tko;
+    var kws = {
+      a0: ['AGENTE 0','ORQUESTADOR','PARAMETROS GLOBALES'],
+      a1: ['AGENTE 1','ESTRATEGA SHOPPER','INSIGHT','SHOPPER JOURNEY'],
+      a2: ['AGENTE 2','DIRECTOR CREATIVO','CONCEPTO CREATIVO','TERRITORIO VISUAL'],
+      a3: ['AGENTE 3','REDACTOR COPY','MENSAJES','GUIA DE VOZ'],
+      a4: ['AGENTE 4','DIRECTOR DE ARTE','COMPOSICION','SISTEMA VISUAL'],
+      a5: ['AGENTE 5','DISENADOR 3D','VERSION HERO','SISTEMA FORMAL'],
+      a6: ['AGENTE 6','INDUSTRIAL','SPECS','TABLA MAESTRA']
+    };
+    var lo = text.toLowerCase();
+    secs.forEach(function(s) {
+      var best = '';
+      (kws[s.id] || []).forEach(function(k) {
+        var idx = lo.indexOf(k.toLowerCase());
+        if (idx > -1) {
+          var ch = text.substring(Math.max(0, idx - 30), Math.min(text.length, idx + 6000));
+          if (ch.length > best.length) best = ch;
+        }
+      });
+      if (best.length > 80) agOuts2[s.id] = best;
+    });
+  }
+
+  secs.forEach(function(s) {
+    var c = agOuts2[s.id] || (p.tko ? p.tko.substring(0, 3000) : 'Sin datos para este agente.');
+    html += '<div class="section">';
+    html += '<div class="section-header"><h2>' + s.label + '</h2></div>';
+    html += '<div class="section-content">' + c.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+    html += '</div>';
+  });
+
+  html += '<div class="footer"><span>Straza. &mdash; The Insight of Shopper Marketing</span><span>' + (p.code || '') + ' &middot; ' + (p.m || '') + '</span><span>' + new Date().toLocaleDateString('es-CO') + '</span></div>';
+  html += '</body></html>';
+
+  // Open in new window and print
+  var win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { alert('Permite las ventanas emergentes para exportar el PDF.'); return; }
+  win.document.write(html);
+  win.document.close();
+  win.focus();
+  setTimeout(function() {
+    win.print();
+  }, 800);
+}
+
 
 // Modal prompt listeners
 var modalPrompt = document.getElementById('modal-prompt');
